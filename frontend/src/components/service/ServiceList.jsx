@@ -47,9 +47,7 @@ const ServiceList = ({ services, incidents, onServiceChange }) => {
       });
 
       // Notify the parent component of service changes
-      if (onServiceChange) {
-        onServiceChange(); // This could trigger a parent refresh if needed
-      }
+      onServiceChange();
     });
 
     // Cleanup on component unmount
@@ -78,11 +76,15 @@ const ServiceList = ({ services, incidents, onServiceChange }) => {
     try {
       const token = await getToken(); // Get the token for authentication
       await deleteService(serviceToDelete._id, token); // Delete the service
+      setServiceList((prevServices) =>
+        prevServices.filter((service) => service._id !== serviceToDelete._id)
+      );
       // The WebSocket will handle the real-time update, so no need to update the state manually
     } catch (error) {
       console.error('Error deleting service:', error);
     }
   };
+
 
   const handleSubmit = async (newService) => {
     if (!isAdmin) return;
@@ -91,16 +93,22 @@ const ServiceList = ({ services, incidents, onServiceChange }) => {
       const token = await getToken(); // Get the token for authentication
       if (selectedService) {
         // If a service is selected, update the existing service
-        await updateService(selectedService._id, newService, token);
+        const updatedService = await updateService(selectedService._id, newService, token);
+        setServiceList((prevServices) =>
+          prevServices.map((service) =>
+            service._id === updatedService._id ? updatedService : service
+          )
+        );
       } else {
         // Otherwise, add a new service
-        await addService(newService, token);
+        const addedService = await addService(newService, token);
+        setServiceList((prevServices) => [...prevServices, addedService]);
       }
       // The WebSocket will handle the real-time update, so no need to update the state manually
-      setModalOpen(false); // Close the modal after submission
     } catch (error) {
       console.error('Error submitting service:', error);
     }
+    setModalOpen(false); // Close the modal after submission
   };
 
   return (
