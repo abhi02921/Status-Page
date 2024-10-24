@@ -1,6 +1,6 @@
 // src/serviceApi.js
 
-const BASE_URL = process.env.REACT_APP_BACKEND_URL+"/api";
+const BASE_URL = process.env.REACT_APP_BACKEND_URL + "/api";
 
 export const fetchServices = async (token) => {
   const response = await fetch(`${BASE_URL}/services`, {
@@ -73,7 +73,7 @@ export const fetchIncidents = async (token) => {
   }
 
   const data = await response.json();
-  
+
   return data.data; // Adjust based on your API response structure
 };
 
