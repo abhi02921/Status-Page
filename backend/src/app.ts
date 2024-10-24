@@ -27,8 +27,8 @@ const io = new SocketIOServer(httpServer, {
   cors: {
     origin: ENV.FRONTEND_URL, // Ensure you set this to your frontend domain for security
     methods: ['GET', 'POST'],
-    credentials: true, // Allow credentials if needed
   },
+  transports: ['websocket', 'polling'],
 });
 
 // Attach the Socket.IO instance to requests (Socket.IO middleware)
