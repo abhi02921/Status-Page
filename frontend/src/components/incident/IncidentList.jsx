@@ -24,7 +24,11 @@ const IncidentList = ({ incidents, onIncidentChange }) => {
 
   useEffect(() => {
     // Connect to the WebSocket server
-    const socket = io(process.env.REACT_APP_WEBSOCKET_URL);
+    const socket = io(process.env.REACT_APP_WEBSOCKET_URL, {
+      reconnectionAttempts: 5, // Number of reconnection attempts
+      reconnectionDelay: 1000,
+      transports: ['websocket'] // Delay between each attempt (in ms)
+    });
 
     // Listen for incident updates
     socket.on('incident', (data) => {
