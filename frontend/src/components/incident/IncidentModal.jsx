@@ -15,7 +15,7 @@ const IncidentModal = ({ open, handleClose, handleSubmit, incident }) => {
   const [services, setServices] = useState([]);
   const { getToken } = useAuth();
 
-  // Memoize the getServices function to avoid unnecessary re-renders
+  // Memoized function to fetch services
   const getServices = useCallback(async () => {
     try {
       const token = await getToken();
@@ -30,19 +30,24 @@ const IncidentModal = ({ open, handleClose, handleSubmit, incident }) => {
     }
   }, [getToken]);
 
+  // Separate effect for fetching services
   useEffect(() => {
     if (open) {
       getServices();
     }
+  }, [open, getServices]);
 
+  // Separate effect for handling incident data
+  useEffect(() => {
     if (incident) {
       setFormData({
         title: incident.title || '',
         status: incident.status || '',
         description: incident.description || '',
-        service: incident.service || '',
+        service: incident.service.name || '',
       });
-    } else {
+    } else if (!incident && open) {
+      // Only reset if there's no incident and the modal is being opened
       setFormData({
         title: '',
         status: '',
@@ -50,7 +55,7 @@ const IncidentModal = ({ open, handleClose, handleSubmit, incident }) => {
         service: '',
       });
     }
-  }, [incident, open, getServices]);
+  }, [incident, open]); // Add open to dependencies to handle both edit and create cases
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,70 +94,66 @@ const IncidentModal = ({ open, handleClose, handleSubmit, incident }) => {
           p: 4,
         }}
       >
-        {incident ? (
-          <IncidentCard incident={incident} />
-        ) : (
-          <form onSubmit={handleFormSubmit} style={{ width: '100%' }}>
-            <Typography variant="h6" gutterBottom>
-              {incident ? 'Edit Incident' : 'Add New Incident'}
-            </Typography>
-            <TextField
-              fullWidth
-              name="title"
-              label="Title"
-              value={formData.title}
+        <Typography variant="h6" gutterBottom>
+          {incident ? 'Edit Incident' : 'Add New Incident'}
+        </Typography>
+        <form onSubmit={handleFormSubmit} style={{ width: '100%' }}>
+          <TextField
+            fullWidth
+            name="title"
+            label="Title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            sx={{ marginBottom: 2 }}
+          />
+          <FormControl fullWidth required sx={{ marginBottom: 2 }}>
+            <InputLabel>Service</InputLabel>
+            <Select
+              name="service"
+              value={formData.service}
               onChange={handleChange}
-              required
-              sx={{ marginBottom: 2 }}
-            />
-            <FormControl fullWidth required sx={{ marginBottom: 2 }}>
-              <InputLabel>Service</InputLabel>
-              <Select
-                name="service"
-                value={formData.service}
-                onChange={handleChange}
-              >
-                {services.length > 0 ? (
-                  services.map((service) => (
-                    <MenuItem key={service._id} value={service._id}>
-                      {service.name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem value="">
-                    <em>No services available</em>
+            >
+              {services.length > 0 ? (
+                services.map((service) => (
+                  <MenuItem key={service._id} value={service._id}>
+                    {service.name}
                   </MenuItem>
-                )}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth required sx={{ marginBottom: 2 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                {statusOptions.map((status) => (
-                  <MenuItem key={status} value={status}>
-                    {status}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              fullWidth
-              name="description"
-              label="Description"
-              value={formData.description}
+                ))
+              ) : (
+                <MenuItem value="">
+                  <em>No services available</em>
+                </MenuItem>
+              )}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth required sx={{ marginBottom: 2 }}>
+            <InputLabel>Status</InputLabel>
+            <Select
+              name="status"
+              value={formData.status}
               onChange={handleChange}
-              required
-              sx={{ marginBottom: 2 }}
-            />
-            <Button type="submit" variant="contained" color="primary" fullWidth>
-              {incident ? 'Update Incident' : 'Create Incident'}
-            </Button>
-          </form>
-        )}
+            >
+              {statusOptions.map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            fullWidth
+            name="description"
+            label="Description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+            sx={{ marginBottom: 2 }}
+          />
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            {incident ? 'Update Incident' : 'Create Incident'}
+          </Button>
+        </form>
       </Box>
     </Modal>
   );
