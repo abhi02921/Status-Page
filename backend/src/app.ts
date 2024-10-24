@@ -26,7 +26,7 @@ const httpServer = createServer(app);
 // Setup Socket.IO
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: '*', // Adjust this for security (use specific domain in production)
+    origin: ENV.FRONTEND_URL, // Adjust this for security (use specific domain in production)
     methods: ['GET', 'POST'],
   },
 });
