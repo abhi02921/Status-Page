@@ -1,50 +1,48 @@
-// components/incident/IncidentModal.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Box, Typography, Button, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import IncidentCard from './IncidentCard'; // Assuming this is your incident card component
-import { fetchServices } from '../../utils/api'; // Import your API function to fetch services
+import IncidentCard from './IncidentCard';
+import { fetchServices } from '../../utils/api';
 import { useAuth } from '@clerk/clerk-react';
+
 const IncidentModal = ({ open, handleClose, handleSubmit, incident }) => {
   const [formData, setFormData] = useState({
     title: '',
     status: '',
     description: '',
-    service: '', // This will hold the selected service ID
+    service: '',
   });
 
-  const [services, setServices] = useState([]); // State to hold services
+  const [services, setServices] = useState([]);
   const { getToken } = useAuth();
-  // Fetch services when the modal is opened
-  useEffect(() => {
-    const getServices = async () => {
-      try {
-        const token = await getToken(); 
-        const servicesData = await fetchServices(token);
-         // Fetch services from your API
-        if (Array.isArray(servicesData)) {
-          setServices(servicesData); // Set the fetched services
-        } else {
-          console.error('Services data is not an array:', servicesData);
-        }
-      } catch (error) {
-        console.error('Error fetching services:', error);
-      }
-    };
 
-    if (open) { // Only fetch services if the modal is open
-        getServices();
+  // Memoize the getServices function to avoid unnecessary re-renders
+  const getServices = useCallback(async () => {
+    try {
+      const token = await getToken();
+      const servicesData = await fetchServices(token);
+      if (Array.isArray(servicesData)) {
+        setServices(servicesData);
+      } else {
+        console.error('Services data is not an array:', servicesData);
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  }, [getToken]);
+
+  useEffect(() => {
+    if (open) {
+      getServices();
     }
 
-    // Populate form data when editing an existing incident
     if (incident) {
       setFormData({
         title: incident.title || '',
         status: incident.status || '',
         description: incident.description || '',
-        service: incident.service || '', // Assume incident object has a service property
+        service: incident.service || '',
       });
     } else {
-      // Clear form for new incident
       setFormData({
         title: '',
         status: '',
@@ -52,7 +50,7 @@ const IncidentModal = ({ open, handleClose, handleSubmit, incident }) => {
         service: '',
       });
     }
-  }, [incident, open]);
+  }, [incident, open, getServices]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,7 +59,7 @@ const IncidentModal = ({ open, handleClose, handleSubmit, incident }) => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    handleSubmit(formData); // Pass the form data to the parent component
+    handleSubmit(formData);
   };
 
   const statusOptions = [
@@ -114,10 +112,10 @@ const IncidentModal = ({ open, handleClose, handleSubmit, incident }) => {
                 value={formData.service}
                 onChange={handleChange}
               >
-                {services && services.length > 0 ? ( // Safeguard here
+                {services.length > 0 ? (
                   services.map((service) => (
                     <MenuItem key={service._id} value={service._id}>
-                      {service.name} {/* Assuming each service has a name property */}
+                      {service.name}
                     </MenuItem>
                   ))
                 ) : (

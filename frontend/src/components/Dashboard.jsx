@@ -1,5 +1,4 @@
-// Dashboard.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Typography, Divider, Box } from '@mui/material';
 import ServiceList from './service/ServiceList';
 import IncidentList from './incident/IncidentList';
@@ -11,8 +10,8 @@ const Dashboard = () => {
   const [incidents, setIncidents] = useState([]);
   const { getToken } = useAuth();
 
-  // Function to fetch services and incidents
-  const loadServicesAndIncidents = async () => {
+  // Function to fetch services and incidents, memoized with useCallback
+  const loadServicesAndIncidents = useCallback(async () => {
     console.log("Fetching services and incidents..."); // Debug log
     try {
       const token = await getToken();
@@ -24,12 +23,12 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
     }
-  };
+  }, [getToken]); // Dependencies: any variables or functions used inside the function
 
   // Use effect to load services and incidents initially
   useEffect(() => {
     loadServicesAndIncidents();
-  }, [getToken]);
+  }, [loadServicesAndIncidents]); // Now the dependency is the memoized function
 
   return (
     <Container>
