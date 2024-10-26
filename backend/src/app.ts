@@ -53,6 +53,7 @@ app.use(requireAuth());
 app.use('/undefined/api', serviceRoutes);
 app.use('/undefined/api', incidentRoutes);
 
+
 // MongoDB connection function
 export const connectDB = async () => {
   try {
