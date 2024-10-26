@@ -26,7 +26,7 @@ const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: {
     origin: ENV.FRONTEND_URL, // Ensure you set this to your frontend domain for security
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
   },
   transports: ['websocket', 'polling'],
 });
@@ -40,6 +40,10 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 // Middleware setup
 app.use(cors());  // Apply CORS early to avoid issues with cross-origin requests
 app.use(express.json()); // Parse JSON bodies
+
+app.get('/', (req, res) => {
+  res.status(200).send({ message: 'Welcome to the API. No authentication required here.' });
+});
 
 // Clerk middleware should be applied before authentication
 app.use(clerkMiddleware());
@@ -64,7 +68,7 @@ export const connectDB = async () => {
 // Socket.IO event handling
 io.on('connection', (socket) => {
   console.log('A user connected via Socket.IO:', socket.id);
-
+  console.log(socket.request);
   // You can add more event listeners here
   socket.on('custom_event', (data) => {
     console.log('Custom event received:', data);
