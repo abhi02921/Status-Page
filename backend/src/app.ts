@@ -41,9 +41,9 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 app.use(cors());  // Apply CORS early to avoid issues with cross-origin requests
 app.use(express.json()); // Parse JSON bodies
 
-// app.get('/', (req, res) => {
-//   res.status(200).send({ message: 'Welcome to the API. No authentication required here.' });
-// });
+app.get('/', (req, res) => {
+  res.status(200).send({ message: 'Welcome to the API. No authentication required here.' });
+});
 
 // Clerk middleware should be applied before authentication
 app.use(clerkMiddleware());
