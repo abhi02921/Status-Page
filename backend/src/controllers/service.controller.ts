@@ -17,7 +17,7 @@ class ServiceController {
 
       const data: CreateServiceDTO = {
         ...req.body,
-        organizationId, // Binding the service to the organization
+        organizationId, //  Binding the service to the organization
       };
 
       const service = await serviceService.createService(data);
