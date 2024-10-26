@@ -68,7 +68,6 @@ export const connectDB = async () => {
 // Socket.IO event handling
 io.on('connection', (socket) => {
   console.log('A user connected via Socket.IO:', socket.id);
-  console.log(socket.request);
   // You can add more event listeners here
   socket.on('custom_event', (data) => {
     console.log('Custom event received:', data);
