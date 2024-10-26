@@ -50,8 +50,8 @@ app.use(clerkMiddleware());
 app.use(requireAuth());
 
 // API Routes
-app.use('/api', serviceRoutes);
-app.use('/api', incidentRoutes);
+app.use('/undefined/api', serviceRoutes);
+app.use('/undefined/api', incidentRoutes);
 
 // MongoDB connection function
 export const connectDB = async () => {
